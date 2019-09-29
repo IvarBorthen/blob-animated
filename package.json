@@ -1,6 +1,6 @@
 {
   "name": "blob-animated",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": false,
   "main": "dist/index.ts",
   "scripts": {
@@ -13,10 +13,10 @@
   "description": "",
   "typings": "./src/types.d.ts",
   "dependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-typescript": "^7.0.0",
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-typescript": "^7.6.0",
     "ts-loader": "^6.2.0",
     "typescript": "^3.6.3"
   }
