@@ -1,11 +1,12 @@
 {
   "name": "blob-animated",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": false,
-  "main": "dist/index.ts",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/.bin/babel ./src/index.ts --out-file dist/index.ts"
+    "build": "rm ./lib/* && tsc",
+    "pre": "rm ./lib/* && tsc && npm version patch"
   },
   "keywords": [],
   "author": "Ivar Borthen",
