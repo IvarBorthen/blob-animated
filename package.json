@@ -1,6 +1,6 @@
 {
   "name": "blob-animated",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "main": "src/blob.ts",
   "scripts": {
@@ -10,5 +10,7 @@
   "author": "Ivar Borthen",
   "license": "MIT",
   "description": "",
-  "types": "index.d.ts"
+  "devDependencies": {
+    "typescript": "^3.6.3"
+  }
 }
