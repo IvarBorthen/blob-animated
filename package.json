@@ -13,5 +13,8 @@
   "typings": "./src/types.d.ts",
   "devDependencies": {
     "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "ts-loader": "^6.2.0"
   }
 }
