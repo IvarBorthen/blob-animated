@@ -3,21 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "VectorType", {
-  enumerable: true,
-  get: function get() {
-    return _types.VectorType;
-  }
-});
-Object.defineProperty(exports, "BlobType", {
-  enumerable: true,
-  get: function get() {
-    return _types.BlobType;
-  }
-});
 exports["default"] = exports.generatePoints = void 0;
-
-var _types = require("./types");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 

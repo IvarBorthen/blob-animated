@@ -1,16 +1,62 @@
-import {
-  VectorType,
-  BlobType,
-  BlobParamTypes,
-  PointsType,
-  DebugDotType,
-  GeneratePointsType,
-} from './types';
+export type VectorType = {
+  x: number;
+  y: number;
+};
 
-export {
-  VectorType,
-  BlobType,
+export type BlobType = {
+  speed: number;
+  debug: boolean;
+  scramble: number;
+  size: number;
+  vectors?: VectorType[];
+  play: boolean;
 }
+
+type BlobParamTypes = {
+  canvas: HTMLCanvasElement;
+  vectors?: VectorType[];
+  speed?: number;
+  scramble?: number;
+  color?: string;
+  autoPlay?: boolean;
+  size?: number;
+  debug?: boolean;
+  cover?: boolean;
+  changedVectorsCallback?: (newVectors: VectorType[]) => void;
+  maskedElement?: HTMLImageElement | HTMLVideoElement;
+};
+
+type PointsType = {
+  initialX: number;
+  initialY: number;
+  x: number;
+  y: number;
+  xFrom: number;
+  yFrom: number;
+  xTarget: number;
+  yTarget: number;
+  bornX: number;
+  willDieX: number;
+  bornY: number;
+  willDieY: number;
+};
+
+type DebugDotType = {
+  cp1x: number;
+  cp1y: number;
+  cp2x: number;
+  cp2y: number;
+  x: number;
+  y: number;
+  initialX: number;
+  initialY: number;
+}
+
+type GeneratePointsType = {
+  sides: number;
+  scramblePercentage?: number;
+  ratio?: number;
+};
 
 export const generatePoints = ({ sides, ratio = 1, scramblePercentage = 0.1 }: GeneratePointsType): VectorType[] => {
   if (Math.floor(sides) !== sides || sides < 2) {

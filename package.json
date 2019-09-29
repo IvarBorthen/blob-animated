@@ -1,6 +1,6 @@
 {
   "name": "blob-animated",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": false,
   "main": "dist/index.ts",
   "scripts": {
@@ -11,7 +11,6 @@
   "author": "Ivar Borthen",
   "license": "MIT",
   "description": "",
-  "typings": "./src/types.d.ts",
   "dependencies": {
     "@babel/cli": "^7.6.2",
     "@babel/core": "^7.6.2",
