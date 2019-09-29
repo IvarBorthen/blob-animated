@@ -3,7 +3,7 @@
   "version": "1.0.6",
   "private": false,
   "types": "lib/index.d.ts",
-  "main": "lib/index.ts",
+  "main": "lib/index.js",
   "scripts": {
     "build": "rm ./lib/* && tsc",
     "pre": "rm ./lib/* && tsc && npm version patch"
