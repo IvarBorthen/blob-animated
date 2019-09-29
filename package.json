@@ -10,6 +10,7 @@
   "author": "Ivar Borthen",
   "license": "MIT",
   "description": "",
+  "typings": "./src/types.d.ts",
   "devDependencies": {
     "typescript": "^3.6.3"
   }
