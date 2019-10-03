@@ -4,12 +4,12 @@ import blob from '../src';
 
 const App = () => {
   useEffect(() => {
-    console.log('???');
-    console.log(blob);
+    alert(blob);
   }, []);
   return (
     <div>
-      <h1>hello example?</h1>
+      <h1>Blob examples</h1>
+      <p>Hang in there.. examples and docs are coming!</p>
     </div>
   );
 }
