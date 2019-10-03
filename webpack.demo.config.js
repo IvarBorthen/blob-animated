@@ -26,7 +26,7 @@ module.exports = {
     ]
   },
   resolve: {
-    alias: {'blob': path.resolve('./src')},
+    alias: { 'blob': path.resolve('./src'), 'react-dom': '@hot-loader/react-dom' },
     extensions: ['.ts', '.tsx', '.js']
   },
   plugins: [
