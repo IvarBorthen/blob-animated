@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rm ./lib/* && tsc",
     "pre": "rm ./lib/* && tsc && npm version patch",
-    "start": "webpack-dev-server --hot --config webpack.demo.config.js --progress",
+    "start-example": "webpack-dev-server --hot --config webpack.demo.config.js --progress",
     "build-example": "rimraf ./example/dist && cross-env NODE_ENV=production webpack -p --config webpack.demo.config.js"
   },
   "keywords": [],
