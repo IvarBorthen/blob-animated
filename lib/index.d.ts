@@ -19,7 +19,6 @@ declare type BlobParamTypes = {
     autoPlay?: boolean;
     size?: number;
     debug?: boolean;
-    cover?: boolean;
     changedVectorsCallback?: (newVectors: VectorType[]) => void;
     maskedElement?: HTMLImageElement | HTMLVideoElement;
 };
@@ -54,7 +53,6 @@ declare class Blob {
     _isPlaying: boolean;
     _frame: number;
     _points: PointsType[];
-    _cover: boolean;
     _debug?: boolean;
     _isDragging: boolean;
     _changedVectorsCallback?: (newVectors: VectorType[]) => void;
@@ -82,7 +80,9 @@ declare class Blob {
     _getDistance: (vector1: VectorType, vector2: VectorType) => number;
     _draw: () => void;
     _debugModeChanged: (debugMode: boolean) => void;
-    constructor({ canvas, color, vectors, speed, scramble, autoPlay, cover, size, maskedElement, debug, changedVectorsCallback, }: BlobParamTypes);
+    _debugMouseMove: (e: MouseEvent) => void;
+    _debugMouseDown: () => void;
+    constructor({ canvas, color, vectors, speed, scramble, autoPlay, size, maskedElement, debug, changedVectorsCallback, }: BlobParamTypes);
     play: boolean;
     speed: number;
     debug: boolean;

@@ -21,7 +21,6 @@ type BlobParamTypes = {
   autoPlay?: boolean;
   size?: number;
   debug?: boolean;
-  cover?: boolean;
   changedVectorsCallback?: (newVectors: VectorType[]) => void;
   maskedElement?: HTMLImageElement | HTMLVideoElement;
 };
@@ -85,7 +84,6 @@ class Blob {
   _isPlaying: boolean;
   _frame: number;
   _points: PointsType[];
-  _cover: boolean;
   _debug?: boolean;
   _isDragging: boolean;
   _changedVectorsCallback?: (newVectors: VectorType[]) => void; 
@@ -100,6 +98,8 @@ class Blob {
   _getDistance: (vector1: VectorType, vector2: VectorType) => number;
   _draw: () => void;
   _debugModeChanged: (debugMode: boolean) => void;
+  _debugMouseMove: (e: MouseEvent) => void;
+  _debugMouseDown: () => void;
   constructor({
     canvas,
     color,
@@ -107,7 +107,6 @@ class Blob {
     speed = 200,
     scramble = 0.1,
     autoPlay = true,
-    cover = true,
     size = 1000,
     maskedElement,
     debug = false,
@@ -144,7 +143,6 @@ class Blob {
     this._frame = 1;
     this._maskedElement = maskedElement;
     this._isPlaying = autoPlay;
-    this._cover = cover;
     // For editing vector arrays
     this._isDragging = false;
     this._changedVectorsCallback = changedVectorsCallback;
@@ -271,14 +269,15 @@ class Blob {
             const height = this._maskedElement.height || this._maskedElement.videoHeight;
             const sizeMultipler = this._size / width;
             this._ctx.globalCompositeOperation = 'source-in';
-            if (this._cover) {
-              // Fix cover calculations!!!
+            if (width > height) {
+              const x = height > width ? (width - height) / 2 : 0;
+              const y = height < width ? (height - width) / 2 : 0;
               this._ctx.drawImage(
                 this._maskedElement,
-                0,
-                (this._size - (sizeMultipler * height)) / 2,
-                this._size,
-                sizeMultipler * height,
+                x < 0 ? 0 : x * sizeMultipler,
+                y < 0 ? 0 : y * sizeMultipler,
+                sizeMultipler * (width - x * 2),
+                sizeMultipler * (height - y * 2),
               );
             } else {
               this._ctx.drawImage(
@@ -324,52 +323,56 @@ class Blob {
         }
       }
     }
+    this._debugMouseMove = (e) => {
+      const rect = this._canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      if (this._isDragging) {
+        // Move points
+        const x = mouseX / rect.width;
+        const y = mouseY / rect.height;
+        this._points[this._dragIndex].initialX = x;
+        this._points[this._dragIndex].initialY = y;
+        this._points[this._dragIndex].x = (x + (0.5 * scramble) - (scramble / 2)) * size;
+        this._points[this._dragIndex].y = (y + (0.5 * scramble) - (scramble / 2)) * size;
+        this._points[this._dragIndex].xFrom = x * size;
+        this._points[this._dragIndex].yFrom = y * size;
+        this._points[this._dragIndex].xTarget = (x + (0.5 * scramble) - (scramble / 2)) * size;
+        this._points[this._dragIndex].yTarget = (y + (0.5 * scramble) - (scramble / 2)) * size;
+      } else {
+        const multipler = this._size / rect.width;
+        this._mousePositions = {
+          x: (mouseX * multipler) / this._size,
+          y: (mouseY * multipler) / this._size,
+        };
+      }
+    }
+    this._debugMouseDown = () => {
+      if (this._mousePositions) {  
+        const dragIndex = this._points.findIndex(point => (
+          this._mousePositions && this._getDistance(this._mousePositions, { x: point.initialX, y: point.initialY }) < this._scramble
+        ));
+        if (dragIndex > -1) {
+          this._isDragging = true;
+          this._dragIndex = dragIndex;
+          const mouseUpListener = () => {
+            if (this._isDragging && this._changedVectorsCallback) {
+              const newVectors: VectorType[] = this._points.map(({ initialX, initialY }) => ({ x: initialX, y: initialY }));
+              this._changedVectorsCallback(newVectors);
+            }
+            this._isDragging = false;
+            window.removeEventListener('mouseup', mouseUpListener);
+          }
+          window.addEventListener('mouseup', mouseUpListener);
+        }
+      }
+    };
     this._debugModeChanged = (debugBlob) => {
       if (debugBlob) {
-        window.addEventListener('mousemove', (e) => {
-          const rect = this._canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
-          if (this._isDragging) {
-            // Move points
-            const x = mouseX / rect.width;
-            const y = mouseY / rect.height;
-            this._points[this._dragIndex].initialX = x;
-            this._points[this._dragIndex].initialY = y;
-            this._points[this._dragIndex].x = (x + (0.5 * scramble) - (scramble / 2)) * size;
-            this._points[this._dragIndex].y = (y + (0.5 * scramble) - (scramble / 2)) * size;
-            this._points[this._dragIndex].xFrom = x * size;
-            this._points[this._dragIndex].yFrom = y * size;
-            this._points[this._dragIndex].xTarget = (x + (0.5 * scramble) - (scramble / 2)) * size;
-            this._points[this._dragIndex].yTarget = (y + (0.5 * scramble) - (scramble / 2)) * size;
-          } else {
-            const multipler = this._size / rect.width;
-            this._mousePositions = {
-              x: (mouseX * multipler) / this._size,
-              y: (mouseY * multipler) / this._size,
-            };
-          }
-        });
-        this._canvas.addEventListener('mousedown', () => {
-          if (this._mousePositions) {  
-            const dragIndex = this._points.findIndex(point => (
-              this._mousePositions && this._getDistance(this._mousePositions, { x: point.initialX, y: point.initialY }) < this._scramble
-            ));
-            if (dragIndex > -1) {
-              this._isDragging = true;
-              this._dragIndex = dragIndex;
-              const mouseUpListener = () => {
-                if (this._isDragging && this._changedVectorsCallback) {
-                  const newVectors: VectorType[] = this._points.map(({ initialX, initialY }) => ({ x: initialX, y: initialY }));
-                  this._changedVectorsCallback(newVectors);
-                }
-                this._isDragging = false;
-                window.removeEventListener('mouseup', mouseUpListener);
-              }
-              window.addEventListener('mouseup', mouseUpListener);
-            }
-          }
-        });
+        window.addEventListener('mousemove', this._debugMouseMove);
+        this._canvas.addEventListener('mousedown', this._debugMouseDown);
+      } else {
+        window.removeEventListener('mousemove', this._debugMouseMove);
       }
       this._debug = debugBlob;
     }
@@ -407,6 +410,7 @@ class Blob {
   }
   set debug(debugState: boolean) {
     this._debug = debugState;
+    this._debugModeChanged(debugState);
   }
   set maskedElement(updateElement: HTMLImageElement | HTMLVideoElement | undefined) {
     this._maskedElement = updateElement;

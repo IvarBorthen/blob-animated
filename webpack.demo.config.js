@@ -23,7 +23,11 @@ module.exports = {
         ],
         exclude: /node_modules/
       },
-    ]
+      {
+        test: /\.(png|jpg|gif)$/i,
+        loader: 'url-loader',
+      },
+    ],
   },
   resolve: {
     alias: { 'blob': path.resolve('./src'), 'react-dom': '@hot-loader/react-dom' },
