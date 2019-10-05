@@ -26,18 +26,26 @@ module.exports = {
       {
         test: /\.(png|jpg|gif)$/i,
         loader: 'url-loader',
+        options: {
+          limit: 25000,
+        },
+      },
+      {
+        test: /\.(png|jpg|gif)$/i,
+        loader: 'file-loader',
       },
     ],
   },
   resolve: {
     alias: { 'blob': path.resolve('./src'), 'react-dom': '@hot-loader/react-dom' },
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js', '.jpg', '.png', '.gif'],
   },
   plugins: [
     new HtmlWebpackPlugin({
       hash: false,
       filename: 'index.html',
-      title: 'Blob demo ',
+      title: 'Blob example',
+      template: './example/index.html',
     }),
   ],
   optimization: {
