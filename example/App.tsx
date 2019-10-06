@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { hot } from 'react-hot-loader/root';
-import DrawBlob, { generatePoints } from '../lib';
+import styled from '@emotion/styled';
+import DrawBlob, { generatePoints, BlobType } from '../src';
+import Slider from './Slider';
 import roadImage from './images/road.jpg';
 import winterImage from './images/winter.jpg';
-import styled from '@emotion/styled';
+import exampleVideo from './video/example.mp4';
 
 const StyledWrapper = styled.div`
   padding: 40px;
@@ -51,18 +53,18 @@ const StyledButtonImagesWrapper = styled.div`
   margin: 16px -4px;
 `;
 
-let Blob;
+let Blob: BlobType;
 
 const App = () => {
   const images = [
     {
       name: 'winter',
-      image: winterImage,
+      src: winterImage,
     },
     {
       name: 'road',
-      image: roadImage,
-    }
+      src: roadImage,
+    },
   ];
   const [scramble, setScramble] = useState(0.1);
   const [speed, setSpeed] = useState(400);
@@ -75,17 +77,25 @@ const App = () => {
   
   useEffect(() => {
     const canvas = canvasRef.current;
-    Blob = new DrawBlob({
-      canvas,
-      speed,
-      vectors,
-      scramble,
-      debug: editMode,
-      maskedElement: imageRef.current,
-      changedVectorsCallback: (newVectors) => {
-        setVectors(newVectors);
-      }
-    });
+    if (canvas) {
+      Blob = new DrawBlob({
+        canvas,
+        speed,
+        vectors,
+        scramble,
+        colorFunction: (ctx) => {
+          const gradientExample = ctx.createLinearGradient(0, 0, 0, 1000);
+          gradientExample.addColorStop(0, '#2580a2');
+          gradientExample.addColorStop(1, '#072c3a');
+          return gradientExample;
+        },
+        debug: editMode,
+        maskedElement: imageRef.current,
+        changedVectorsCallback: (newVectors) => {
+          setVectors(newVectors);
+        }
+      });
+    }
   }, []);
   return (
     <StyledWrapper>
@@ -95,16 +105,53 @@ const App = () => {
         Blob.debug = !editMode;
         setEditMode(!editMode);
       }}>
-        {editMode ? 'Edit blob' : 'Close editor'}
+        {editMode ? 'Close editor' : 'Edit blob'}
       </button>
-      <img src={images[withImage].image} ref={imageRef} style={{ display: 'none' }} />
+      {editMode && (
+        <>
+          <Slider
+            title="Scramble"
+            name="scramble"
+            min={0}
+            max={1}
+            step={0.01}
+            value={Blob.scramble}
+            onChange={(e) => { Blob.scramble = Number(e.target.value) }}
+          />
+          <Slider
+            title="Speed"
+            name="speed"
+            min={50}
+            max={2000}
+            step={10}
+            value={Blob.speed}
+            onChange={(e) => { Blob.speed = Number(e.target.value) }}
+          />
+          <Slider
+            title="Polygons"
+            name="polygons"
+            min={3}
+            max={20}
+            step={1}
+            value={Object.keys(Blob.vectors || {}).length}
+            onChange={(e) => {
+              Blob.vectors = generatePoints({ sides: Number(e.target.value) })
+            }}
+          />
+        </>
+      )}
+      <img src={images[withImage].src} ref={imageRef} style={{ display: 'none' }} />
+      <video autoPlay ref={imageRef} muted loop>
+        <source src={exampleVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
       <StyledCanvasContainer>
         <StyledCanvas ref={canvasRef} width="1000" height="1000" />
       </StyledCanvasContainer>
       <StyledButtonImagesWrapper>
         {images.map((image, index) => (
           <StyledImageButton active={withImage === index} key={image.name} onClick={() => setImage(index)}>
-            <img src={image.image} />
+            <img src={image.src} />
           </StyledImageButton>
         ))}
       </StyledButtonImagesWrapper>

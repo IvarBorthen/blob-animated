@@ -20,7 +20,7 @@ declare type BlobParamTypes = {
     size?: number;
     debug?: boolean;
     changedVectorsCallback?: (newVectors: VectorType[]) => void;
-    maskedElement?: HTMLImageElement | HTMLVideoElement;
+    maskedElement?: HTMLImageElement | HTMLVideoElement | null;
 };
 declare type PointsType = {
     initialX: number;
@@ -57,7 +57,7 @@ declare class Blob {
     _isDragging: boolean;
     _changedVectorsCallback?: (newVectors: VectorType[]) => void;
     _dragIndex: number;
-    _maskedElement?: HTMLImageElement | HTMLVideoElement;
+    _maskedElement?: HTMLImageElement | HTMLVideoElement | null;
     _mousePositions?: VectorType;
     _createPoints: (points: VectorType[], scramble: number, size: number, speed: number) => PointsType[];
     _easeInOutQuad: (n: number) => number;

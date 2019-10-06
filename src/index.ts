@@ -18,11 +18,12 @@ type BlobParamTypes = {
   speed?: number;
   scramble?: number;
   color?: string;
+  colorFunction?: (arg: CanvasRenderingContext2D) => any; 
   autoPlay?: boolean;
   size?: number;
   debug?: boolean;
   changedVectorsCallback?: (newVectors: VectorType[]) => void;
-  maskedElement?: HTMLImageElement | HTMLVideoElement;
+  maskedElement?: HTMLImageElement | HTMLVideoElement | null;
 };
 
 type PointsType = {
@@ -80,6 +81,7 @@ class Blob {
   _size: number;
   _scramble: number;
   _color?: string;
+  _colorFunction?: (arg: CanvasRenderingContext2D) => any; 
   _numberOfPoints: number;
   _isPlaying: boolean;
   _frame: number;
@@ -88,7 +90,7 @@ class Blob {
   _isDragging: boolean;
   _changedVectorsCallback?: (newVectors: VectorType[]) => void; 
   _dragIndex: number;
-  _maskedElement?: HTMLImageElement | HTMLVideoElement;
+  _maskedElement?: HTMLImageElement | HTMLVideoElement | null;
   _mousePositions?: VectorType;
   _createPoints: (points: VectorType[], scramble: number, size: number, speed: number) => PointsType[];
   _easeInOutQuad: (n: number) => number;
@@ -103,6 +105,7 @@ class Blob {
   constructor({
     canvas,
     color,
+    colorFunction,
     vectors,
     speed = 200,
     scramble = 0.1,
@@ -137,7 +140,8 @@ class Blob {
     this._canvas = canvas;
     this._ctx = canvas.getContext('2d');
     this._size = size;
-    this._color = color;
+    this._color = color || '#222';
+    this._colorFunction = colorFunction;
     this._scramble = scramble;
     this._speed = speed;
     this._frame = 1;
@@ -259,7 +263,11 @@ class Blob {
             );
           });
 
-          _ctx.fillStyle = this._color || '#333';
+          if (this._colorFunction) {
+            _ctx.fillStyle = this._colorFunction(_ctx);
+          } else if (this._color) {
+            _ctx.fillStyle = this._color;
+          }
           _ctx.fill();
 
           if (this._maskedElement) {
@@ -267,26 +275,35 @@ class Blob {
             const width = this._maskedElement.width || this._maskedElement.videoWidth;
             // @ts-ignore
             const height = this._maskedElement.height || this._maskedElement.videoHeight;
+
             const sizeMultipler = this._size / width;
             this._ctx.globalCompositeOperation = 'source-in';
             if (width > height) {
               const x = height > width ? (width - height) / 2 : 0;
               const y = height < width ? (height - width) / 2 : 0;
-              this._ctx.drawImage(
-                this._maskedElement,
-                x < 0 ? 0 : x * sizeMultipler,
-                y < 0 ? 0 : y * sizeMultipler,
-                sizeMultipler * (width - x * 2),
-                sizeMultipler * (height - y * 2),
-              );
+              try {
+                this._ctx.drawImage(
+                  this._maskedElement,
+                  x < 0 ? 0 : x * sizeMultipler,
+                  y < 0 ? 0 : y * sizeMultipler,
+                  sizeMultipler * (width - x * 2),
+                  sizeMultipler * (height - y * 2),
+                );
+              } catch(err) {
+                console.log('maskedElement (image/video) not ready');
+              }
             } else {
-              this._ctx.drawImage(
-                this._maskedElement,
-                0,
-                (this._size - (sizeMultipler * height)) / 2,
-                this._size,
-                sizeMultipler * height,
-              );
+              try {
+                this._ctx.drawImage(
+                  this._maskedElement,
+                  0,
+                  (this._size - (sizeMultipler * height)) / 2,
+                  this._size,
+                  sizeMultipler * height,
+                );
+              } catch(err) {
+                console.log('maskedElement (image/video) not ready');
+              }
             }
             this._ctx.globalCompositeOperation = 'source-over';
           }
@@ -420,6 +437,7 @@ class Blob {
   }
   set vectors(vectors: VectorType[]) {
     this._points = this._createPoints(vectors, this._scramble, this._size, this._speed);
+    this._numberOfPoints = vectors.length;
   }
   set scramble(scramble: number) {
     this._scramble = scramble;
