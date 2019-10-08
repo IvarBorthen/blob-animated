@@ -24,12 +24,12 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(jpe?g|gif|png|svg)$/i,
+        test: /\.(jpg|png)$/i,
         use: [
           {
             loader: 'url-loader',
             options: {
-              limit: 10000
+              limit: 0,
             },
           },
         ],

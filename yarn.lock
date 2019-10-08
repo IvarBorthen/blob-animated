@@ -859,8 +859,8 @@
 
 "@hot-loader/react-dom@^16.10.1":
   version "16.9.0"
-  resolved "https://registry.yarnpkg.com/@hot-loader/react-dom/-/react-dom-16.9.0.tgz#7782cec9d78172f3e4c86a317ba7a73bd0271acd"
-  integrity sha512-MsOdCBB7c5YNyB4iDDct+tS7AihvYyfwZVV+z/QnbTjPgxH98kqIDXO92nU7tLXp0OtYFErHZfcWjtszP/572w==
+  resolved "https://packages.spvdev.no/npm/npm/@hot-loader/react-dom/-/react-dom-16.9.0+4.12.11.tgz#7782cec9d78172f3e4c86a317ba7a73bd0271acd"
+  integrity sha1-d4LOydeBcvPkyGoxe6enO9AnGs0=
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
@@ -4960,11 +4960,6 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
-
-react-slider@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/react-slider/-/react-slider-1.0.0.tgz#c258616f1c1c135bd7a139b73531dac9280da393"
-  integrity sha512-NPd41T8WBi1SbpqJP7Tj/z3HO5qZDXJ3DJei9pS5IuSYc4mmqt/Vs5pJVivN9+C6AiOti3mjI4++g+/oDXmIlQ==
 
 react@^16.10.1:
   version "16.10.1"

@@ -5,7 +5,6 @@ import DrawBlob, { generatePoints, BlobType } from '../src';
 import Slider from './Slider';
 import roadImage from './images/road.jpg';
 import winterImage from './images/winter.jpg';
-import exampleVideo from './video/example.mp4';
 
 const StyledWrapper = styled.div`
   padding: 40px;
@@ -141,10 +140,6 @@ const App = () => {
         </>
       )}
       <img src={images[withImage].src} ref={imageRef} style={{ display: 'none' }} />
-      <video autoPlay ref={imageRef} muted loop>
-        <source src={exampleVideo} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
       <StyledCanvasContainer>
         <StyledCanvas ref={canvasRef} width="1000" height="1000" />
       </StyledCanvasContainer>
