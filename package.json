@@ -1,6 +1,6 @@
 {
   "name": "blob-animated",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": false,
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -10,7 +10,7 @@
     "start-example": "webpack-dev-server --hot --config webpack.demo.config.js --progress",
     "build-example": "rm ./example/dist/* && cross-env NODE_ENV=production webpack -p --config webpack.demo.config.js"
   },
-  "keywords": [],
+  "keywords": ["blob", "animated", "vanilla", "typescript", "react", "customizable"],
   "author": "Ivar Borthen",
   "license": "MIT",
   "description": "",

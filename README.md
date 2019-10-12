@@ -1,8 +1,7 @@
 # blob-animated
-Animated Blob, optional image or video masking, fully adjustable.
+Animated Blob, fully adjustable. Can blobify images, videos, colors and gradients and HTML content.
 
-Live demo: blob-animated.surge.sh
-
-^^ coming someday..
+Live demo: http://www.blob-animated.surge.sh
 
 ## Docs and example coming soon
+meanwhile, checkout the example..
