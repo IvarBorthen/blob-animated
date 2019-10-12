@@ -1,6 +1,6 @@
 {
   "name": "blob-animated",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": false,
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -42,7 +42,8 @@
     "file-loader": "^4.2.0",
     "git-scripts": "0.2.1",
     "surge": "latest",
-    "url-loader": "^2.2.0"
+    "url-loader": "^2.2.0",
+    "mdbreact": "4.21.0"
   },
   "git": {
     "scripts": {

@@ -15,7 +15,7 @@ const Slider: React.FunctionComponent<Props> = ({
 }) => {
   const [slideValue, setValue] = useState(value);
   return (
-    <>
+    <div className="my-2">
       <label htmlFor={name}>
         {title}
       </label>
@@ -23,6 +23,7 @@ const Slider: React.FunctionComponent<Props> = ({
         name={name}
         type="range"
         value={slideValue}
+        className="custom-range"
         min={min}
         max={max}
         step={step}
@@ -31,7 +32,7 @@ const Slider: React.FunctionComponent<Props> = ({
           onChange(e);
         }}
       />
-    </>
+    </div>
   )
 }
 
