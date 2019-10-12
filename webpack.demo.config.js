@@ -34,14 +34,6 @@ module.exports = {
           },
         ],
       },
-      {
-        test: /\.(mp4)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-          }
-        ]
-      },
     ],
   },
   resolve: {
