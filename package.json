@@ -1,11 +1,11 @@
 {
   "name": "blob-animated",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": false,
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "scripts": {
-    "build": "rm ./lib/* && tsc",
+    "build": "tsc",
     "pre": "rm ./lib/* && tsc && npm version patch",
     "start-example": "webpack-dev-server --hot --config webpack.demo.config.js --progress",
     "build-example": "rm ./example/dist/* && cross-env NODE_ENV=production webpack -p --config webpack.demo.config.js"
@@ -37,10 +37,13 @@
   "devDependencies": {
     "@emotion/core": "^10.0.20",
     "@emotion/styled": "^10.0.17",
+    "@types/react-dom": "^16.9.1",
+    "@types/react-router-dom": "^5.1.0",
     "file-loader": "^4.2.0",
     "git-scripts": "0.2.1",
     "surge": "latest",
-    "url-loader": "^2.2.0"
+    "url-loader": "^2.2.0",
+    "mdbreact": "4.21.0"
   },
   "git": {
     "scripts": {

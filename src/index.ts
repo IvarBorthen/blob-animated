@@ -10,6 +10,9 @@ export type BlobType = {
   size: number;
   vectors?: VectorType[];
   play: boolean;
+  inverted: boolean;
+  maskedElement: HTMLImageElement | HTMLVideoElement | null;
+  color: any;
 }
 
 type BlobParamTypes = {
@@ -18,11 +21,13 @@ type BlobParamTypes = {
   speed?: number;
   scramble?: number;
   color?: string;
+  colorFunction?: (arg: CanvasRenderingContext2D) => any; 
   autoPlay?: boolean;
   size?: number;
   debug?: boolean;
+  inverted?: boolean;
   changedVectorsCallback?: (newVectors: VectorType[]) => void;
-  maskedElement?: HTMLImageElement | HTMLVideoElement;
+  maskedElement?: HTMLImageElement | HTMLVideoElement | null;
 };
 
 type PointsType = {
@@ -80,6 +85,7 @@ class Blob {
   _size: number;
   _scramble: number;
   _color?: string;
+  _colorFunction?: (arg: CanvasRenderingContext2D) => any; 
   _numberOfPoints: number;
   _isPlaying: boolean;
   _frame: number;
@@ -88,7 +94,8 @@ class Blob {
   _isDragging: boolean;
   _changedVectorsCallback?: (newVectors: VectorType[]) => void; 
   _dragIndex: number;
-  _maskedElement?: HTMLImageElement | HTMLVideoElement;
+  _maskedElement?: HTMLImageElement | HTMLVideoElement | null;
+  _inverted: boolean;
   _mousePositions?: VectorType;
   _createPoints: (points: VectorType[], scramble: number, size: number, speed: number) => PointsType[];
   _easeInOutQuad: (n: number) => number;
@@ -97,12 +104,15 @@ class Blob {
   _getAngleRadians: (obj: {  x1: number, y1: number, x2: number, y2: number }) => number;
   _getDistance: (vector1: VectorType, vector2: VectorType) => number;
   _draw: () => void;
+  _drawImage: () => void;
+  _colorize: () => void;
   _debugModeChanged: (debugMode: boolean) => void;
   _debugMouseMove: (e: MouseEvent) => void;
   _debugMouseDown: () => void;
   constructor({
     canvas,
     color,
+    colorFunction,
     vectors,
     speed = 200,
     scramble = 0.1,
@@ -110,10 +120,12 @@ class Blob {
     size = 1000,
     maskedElement,
     debug = false,
+    inverted = false,
     changedVectorsCallback,
   }: BlobParamTypes) {
     canvas.setAttribute('width', `${size}px`);
     canvas.setAttribute('height', `${size}px`);
+    canvas.style.pointerEvents = debug ? 'auto' : 'none';
     // Function for initiate points from vectors
     this._createPoints = (vectors, scramble, size, speed) => (
       vectors.map(({ x, y }) => ({
@@ -137,12 +149,14 @@ class Blob {
     this._canvas = canvas;
     this._ctx = canvas.getContext('2d');
     this._size = size;
-    this._color = color;
+    this._color = color || '#eee';
+    this._colorFunction = colorFunction;
     this._scramble = scramble;
     this._speed = speed;
     this._frame = 1;
     this._maskedElement = maskedElement;
     this._isPlaying = autoPlay;
+    this._inverted = inverted;
     // For editing vector arrays
     this._isDragging = false;
     this._changedVectorsCallback = changedVectorsCallback;
@@ -187,6 +201,17 @@ class Blob {
       const b = vector1.y - vector2.y;
       return Math.sqrt( a * a + b * b );
     };
+    this._colorize = () => {
+      const { _ctx, _colorFunction, _color } = this;
+      if (_ctx) {
+        if (_colorFunction) {
+          _ctx.fillStyle = _colorFunction(_ctx);
+        } else if (_color) {
+          _ctx.fillStyle = _color;
+        }
+        _ctx.fill();
+      }
+    }
     // Calculate vectors for bezierCurve points.
     this._getCurvedPathPoints = ({ x, y, i, invert }) => {
       const { _points, _numberOfPoints, _getAngleRadians } = this;
@@ -210,13 +235,59 @@ class Blob {
         y: y + (Math.sin(radian) * radius * -invert),
       };
     }
+    this._drawImage = () => {
+      if (this._maskedElement && this._ctx) {
+        // @ts-ignore
+        const width = this._maskedElement.width || this._maskedElement.videoWidth;
+        // @ts-ignore
+        const height = this._maskedElement.height || this._maskedElement.videoHeight;
+        const sizeMultipler = this._size / width;
+        this._ctx.globalCompositeOperation = 'source-in';
+        if (width > height) {
+          const x = height > width ? (width - height) / 2 : 0;
+          const y = height < width ? (height - width) / 2 : 0;
+          try {
+            this._ctx.drawImage(
+              this._maskedElement,
+              x < 0 ? 0 : x * sizeMultipler,
+              y < 0 ? 0 : y * sizeMultipler,
+              sizeMultipler * (width - x * 2),
+              sizeMultipler * (height - y * 2),
+            );
+          } catch(err) {
+            console.log('maskedElement (image/video) not ready');
+          }
+        } else {
+          try {
+            this._ctx.drawImage(
+              this._maskedElement,
+              0,
+              (this._size - (sizeMultipler * height)) / 2,
+              this._size,
+              sizeMultipler * height,
+            );
+          } catch(err) {
+            console.log('maskedElement (image/video) not ready');
+          }
+        }
+        this._ctx.globalCompositeOperation = 'source-over';
+      }
+    }
     this._draw = () => {
       
       if (this._ctx) {
         const {
-          _ctx, _points, _numberOfPoints, _getCurvedPathPoints, _updatePositions,
+          _ctx, _points, _numberOfPoints, _getCurvedPathPoints, _updatePositions, _inverted, 
         } = this;
         _ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this._ctx.globalCompositeOperation = 'source-over';
+        if (_inverted) {
+          this._colorize();
+          _ctx.rect(0, 0, canvas.width, canvas.height);
+          _ctx.fill();
+          this._drawImage();
+          _ctx.globalCompositeOperation = 'destination-out';
+        }
         if (_points.length > 2) {
           this._frame += 1;
           _points.forEach(point => _updatePositions(point));
@@ -259,36 +330,9 @@ class Blob {
             );
           });
 
-          _ctx.fillStyle = this._color || '#333';
-          _ctx.fill();
-
-          if (this._maskedElement) {
-            // @ts-ignore
-            const width = this._maskedElement.width || this._maskedElement.videoWidth;
-            // @ts-ignore
-            const height = this._maskedElement.height || this._maskedElement.videoHeight;
-            const sizeMultipler = this._size / width;
-            this._ctx.globalCompositeOperation = 'source-in';
-            if (width > height) {
-              const x = height > width ? (width - height) / 2 : 0;
-              const y = height < width ? (height - width) / 2 : 0;
-              this._ctx.drawImage(
-                this._maskedElement,
-                x < 0 ? 0 : x * sizeMultipler,
-                y < 0 ? 0 : y * sizeMultipler,
-                sizeMultipler * (width - x * 2),
-                sizeMultipler * (height - y * 2),
-              );
-            } else {
-              this._ctx.drawImage(
-                this._maskedElement,
-                0,
-                (this._size - (sizeMultipler * height)) / 2,
-                this._size,
-                sizeMultipler * height,
-              );
-            }
-            this._ctx.globalCompositeOperation = 'source-over';
+          this._colorize();
+          if (!_inverted) {
+            this._drawImage();
           }
 
           if (this._debug) {
@@ -400,6 +444,13 @@ class Blob {
   get size() {
     return this._size;
   }
+  get inverted() {
+    return this._inverted;
+  }
+  get color() {
+    // @ts-ignore
+    return this._colorFunction || this._color || undefined;
+  }
   // setter functions
   set play(playState: boolean) {
     const startPlay = playState && playState !== this._isPlaying;
@@ -410,6 +461,7 @@ class Blob {
   }
   set debug(debugState: boolean) {
     this._debug = debugState;
+    this._canvas.style.pointerEvents = debugState ? 'auto' : 'none';
     this._debugModeChanged(debugState);
   }
   set maskedElement(updateElement: HTMLImageElement | HTMLVideoElement | undefined) {
@@ -420,6 +472,7 @@ class Blob {
   }
   set vectors(vectors: VectorType[]) {
     this._points = this._createPoints(vectors, this._scramble, this._size, this._speed);
+    this._numberOfPoints = vectors.length;
   }
   set scramble(scramble: number) {
     this._scramble = scramble;
@@ -430,6 +483,18 @@ class Blob {
     this._points = this._createPoints(this._points.map(({ initialX, initialY }) => ({ x: initialX, y: initialY })), this._scramble, size, this._speed);
     this._canvas.setAttribute('width', `${size}px`);
     this._canvas.setAttribute('height', `${size}px`);
+  }
+  set inverted(invert: boolean) {
+    this._inverted = invert;
+  }
+  set color(newColor: (arg: CanvasRenderingContext2D) => any | string | null | undefined) {
+    if (typeof newColor === 'function') {
+      this._colorFunction = newColor;
+      this._color = undefined;
+    } else {
+      this._colorFunction = undefined;
+      this._color = newColor;
+    }
   }
 }
 

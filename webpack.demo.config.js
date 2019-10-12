@@ -24,15 +24,23 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpg|gif)$/i,
-        loader: 'url-loader',
-        options: {
-          limit: 25000,
-        },
+        test: /\.(jpe?g|gif|png|svg)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10000
+            },
+          },
+        ],
       },
       {
-        test: /\.(png|jpg|gif)$/i,
-        loader: 'file-loader',
+        test: /\.(mp4)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+          }
+        ]
       },
     ],
   },

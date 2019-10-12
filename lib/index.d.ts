@@ -9,6 +9,9 @@ export declare type BlobType = {
     size: number;
     vectors?: VectorType[];
     play: boolean;
+    inverted: boolean;
+    maskedElement: HTMLImageElement | HTMLVideoElement | null;
+    color: any;
 };
 declare type BlobParamTypes = {
     canvas: HTMLCanvasElement;
@@ -16,11 +19,13 @@ declare type BlobParamTypes = {
     speed?: number;
     scramble?: number;
     color?: string;
+    colorFunction?: (arg: CanvasRenderingContext2D) => any;
     autoPlay?: boolean;
     size?: number;
     debug?: boolean;
+    inverted?: boolean;
     changedVectorsCallback?: (newVectors: VectorType[]) => void;
-    maskedElement?: HTMLImageElement | HTMLVideoElement;
+    maskedElement?: HTMLImageElement | HTMLVideoElement | null;
 };
 declare type PointsType = {
     initialX: number;
@@ -49,6 +54,7 @@ declare class Blob {
     _size: number;
     _scramble: number;
     _color?: string;
+    _colorFunction?: (arg: CanvasRenderingContext2D) => any;
     _numberOfPoints: number;
     _isPlaying: boolean;
     _frame: number;
@@ -57,7 +63,8 @@ declare class Blob {
     _isDragging: boolean;
     _changedVectorsCallback?: (newVectors: VectorType[]) => void;
     _dragIndex: number;
-    _maskedElement?: HTMLImageElement | HTMLVideoElement;
+    _maskedElement?: HTMLImageElement | HTMLVideoElement | null;
+    _inverted: boolean;
     _mousePositions?: VectorType;
     _createPoints: (points: VectorType[], scramble: number, size: number, speed: number) => PointsType[];
     _easeInOutQuad: (n: number) => number;
@@ -79,16 +86,20 @@ declare class Blob {
     }) => number;
     _getDistance: (vector1: VectorType, vector2: VectorType) => number;
     _draw: () => void;
+    _drawImage: () => void;
+    _colorize: () => void;
     _debugModeChanged: (debugMode: boolean) => void;
     _debugMouseMove: (e: MouseEvent) => void;
     _debugMouseDown: () => void;
-    constructor({ canvas, color, vectors, speed, scramble, autoPlay, size, maskedElement, debug, changedVectorsCallback, }: BlobParamTypes);
+    constructor({ canvas, color, colorFunction, vectors, speed, scramble, autoPlay, size, maskedElement, debug, inverted, changedVectorsCallback, }: BlobParamTypes);
     play: boolean;
     speed: number;
     debug: boolean;
     vectors: VectorType[];
     scramble: number;
     size: number;
+    inverted: boolean;
+    color: (arg: CanvasRenderingContext2D) => any | string | null | undefined;
     maskedElement: HTMLImageElement | HTMLVideoElement | undefined;
 }
 export default Blob;

@@ -1,113 +1,150 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { hot } from 'react-hot-loader/root';
-import DrawBlob, { generatePoints } from '../lib';
-import roadImage from './images/road.jpg';
-import winterImage from './images/winter.jpg';
 import styled from '@emotion/styled';
+import { css } from '@emotion/core';
+import DrawBlob, { generatePoints, BlobType } from '../src';
+import roadImage from './images/road.jpg';
+import CarouselExample from './CarouselExample';
+import EditorExample from './EditorExample';
 
 const StyledWrapper = styled.div`
   padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
   display: flex;
   display: flex;
   flex-direction: column;
-  background: #f3f3f3;
+  select {
+    margin-bottom: 10px;
+  }
 `;
 
-const StyledCanvas = styled.canvas`
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
-  max-width: 100%;
-`;
-
-const StyledCanvasContainer = styled.div`
+type StyledCanvasContainerProps = {
+  withHTMLBackground?: boolean;
+  editMode: boolean;
+}
+const StyledCanvasContainer = styled.div<StyledCanvasContainerProps>`
   display: flex;
+  ${props => props.withHTMLBackground && css`
+    position: relative;
+    canvas {
+      position: absolute;
+      z-index: 9999;
+    }
+  `}
+  canvas {
+    width: 100%;
+    max-width: 800px;
+    ${props => props.editMode && css`
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
+    `}
+  }
+`;
+
+const StyledEditBlobButton = styled.button`
+  margin: 10px 0;
 `;
 
 type ImageButtonProps = {
-  active: boolean;
+  active?: boolean;
 }
 
-const StyledImageButton = styled.button<ImageButtonProps>`
-  height: 100px;
-  border: 0;
-  background: none;
-  margin: 4px;
-  padding: 0;
-  outline: none;
-  img {
-    width: auto;
-    height: 100px;
-  }
-  opacity: ${props => props.active ? 1 : 0.6};
-  transition: 400ms ease;
-  &:hover {
-    transform: scale(1.05);
-  }
-  &:focus {
-    opacity: 1;
-  }
-`;
-
-const StyledButtonImagesWrapper = styled.div`
-  margin: 16px -4px;
-`;
-
-let Blob;
+let Blob: BlobType;
 
 const App = () => {
-  const images = [
-    {
-      name: 'winter',
-      image: winterImage,
-    },
-    {
-      name: 'road',
-      image: roadImage,
-    }
-  ];
-  const [scramble, setScramble] = useState(0.1);
-  const [speed, setSpeed] = useState(400);
   const [vectors, setVectors] = useState(generatePoints({ sides: 8 }));
-  const [withImage, setImage] = useState(0);
+  const [withHTMLBackground, setHTMLBackground] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [selectedExample, setSelectedExample] = useState('image');
 
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
+  const videoRef = useRef(null);
+
+  const colorFunction = (ctx) => {
+    const gradientExample = ctx.createLinearGradient(0, 0, 0, 1000);
+    gradientExample.addColorStop(0, '#519bbf');
+    gradientExample.addColorStop(1, '#0a1a23');
+    return gradientExample;
+  }
   
   useEffect(() => {
     const canvas = canvasRef.current;
-    Blob = new DrawBlob({
-      canvas,
-      speed,
-      vectors,
-      scramble,
-      debug: editMode,
-      maskedElement: imageRef.current,
-      changedVectorsCallback: (newVectors) => {
-        setVectors(newVectors);
-      }
-    });
+    if (canvas) {
+      Blob = new DrawBlob({
+        canvas,
+        speed: 400,
+        vectors,
+        scramble: 0.1,
+        debug: editMode,
+        maskedElement: imageRef.current,
+        changedVectorsCallback: (newVectors) => {
+          setVectors(newVectors);
+        }
+      });
+    }
   }, []);
   return (
     <StyledWrapper>
       <h1>The Blob</h1>
-      <p>Its alive!</p>
-      <button onClick={() => {
+      <p>Fully customizable, light weight and easy to use Blob. Auto scales images and videos to cover blob. Also takes any color and color gradients + Any HTML-content</p>
+      <StyledEditBlobButton onClick={() => {
         Blob.debug = !editMode;
         setEditMode(!editMode);
       }}>
-        {editMode ? 'Edit blob' : 'Close editor'}
-      </button>
-      <img src={images[withImage].image} ref={imageRef} style={{ display: 'none' }} />
-      <StyledCanvasContainer>
-        <StyledCanvas ref={canvasRef} width="1000" height="1000" />
+        {editMode ? 'Close editor' : 'Edit blob'}
+      </StyledEditBlobButton>
+      {editMode && (
+        <EditorExample Blob={Blob} />
+      )}
+      <div>
+        <select
+          className="browser-default custom-select"
+          value={selectedExample}
+          onChange={(e) => {
+            const value = e.target.value;
+            videoRef.current.pause()
+            if (value === 'image') {
+              Blob.maskedElement = imageRef.current;
+              Blob.inverted = false;
+              Blob.color = '#fff';
+            } else if (value === 'color') {
+              Blob.maskedElement = undefined;
+              Blob.inverted = false;
+              Blob.color = '#519bbf';
+            } else if (value === 'colorFunction') {
+              Blob.maskedElement = undefined;
+              Blob.inverted = false;
+              Blob.color = colorFunction;
+            } else if (value === 'html') {
+              Blob.inverted = true;
+              Blob.maskedElement = undefined;
+              Blob.color = '#fff';
+            } else if (value === 'video') {
+              Blob.inverted = false;
+              videoRef.current.play();
+              Blob.maskedElement = videoRef.current;
+              Blob.color = '#fff';
+            }
+            setHTMLBackground(value === 'html');
+            setSelectedExample(e.target.value);
+          }}
+        >
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+          <option value="color">Color (string)</option>
+          <option value="colorFunction">Gradient (colorfunction)</option>
+          <option value="html">HTML (with inverted masking)</option>
+        </select>
+      </div>
+      <img src={roadImage} ref={imageRef} style={{ display: 'none' }} />
+      <video ref={videoRef} preload="auto" loop style={{ display: 'none' }}>
+        <source src = "http://www.w3schools.com/html/mov_bbb.mp4" />
+      </video>
+      <StyledCanvasContainer editMode={editMode} withHTMLBackground={withHTMLBackground}>
+        <canvas ref={canvasRef} width="1000" height="1000" />
       </StyledCanvasContainer>
-      <StyledButtonImagesWrapper>
-        {images.map((image, index) => (
-          <StyledImageButton active={withImage === index} key={image.name} onClick={() => setImage(index)}>
-            <img src={image.image} />
-          </StyledImageButton>
-        ))}
-      </StyledButtonImagesWrapper>
+      {withHTMLBackground && <CarouselExample />}
     </StyledWrapper>
   );
 }
