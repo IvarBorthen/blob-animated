@@ -79,6 +79,11 @@ const App = () => {
         }
       });
     }
+    return () => {
+      // Make sure you stop the Blob once its removed
+      Blob.play = false;
+      Blob = null;
+    }
   }, []);
   return (
     <StyledWrapper>
