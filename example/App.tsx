@@ -45,10 +45,6 @@ const StyledEditBlobButton = styled.button`
   margin: 10px 0;
 `;
 
-type ImageButtonProps = {
-  active?: boolean;
-}
-
 let Blob: BlobType;
 
 const App = () => {
