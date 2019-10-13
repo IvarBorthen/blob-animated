@@ -142,7 +142,7 @@ const App = () => {
         <source src = "http://www.w3schools.com/html/mov_bbb.mp4" />
       </video>
       <StyledCanvasContainer editMode={editMode} withHTMLBackground={withHTMLBackground}>
-        <canvas ref={canvasRef} width="1000" height="1000" />
+        <canvas ref={canvasRef} />
       </StyledCanvasContainer>
       {withHTMLBackground && <CarouselExample />}
     </StyledWrapper>

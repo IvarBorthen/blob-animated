@@ -1,6 +1,6 @@
 {
   "name": "blob-animated",
-  "version": "1.2.2",
+  "version": "1.2.8",
   "private": false,
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

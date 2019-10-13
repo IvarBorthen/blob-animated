@@ -1,12 +1,3 @@
-# blob-animated
-Animated Blob, fully adjustable. Can blobify images, videos, colors and gradients and HTML content.
-
-Live demo: http://www.blob-animated.surge.sh
-
-## Docs and example coming soon
-meanwhile, checkout the example..
-
-
 Blob-animated.
 =====
 Animated Blob, fully adjustable. Can blobify images, videos, colors and gradients and HTML content.
@@ -22,9 +13,17 @@ yarn add blob-animated
 ```
 
 ### Documentation
-📚Docs will be added soon
+📚Docs will be updated soon
+```markup
+<canvas id="canvasExample" />
+```
 ```js
-// coming soon...
+Blob = new DrawBlob({
+  canvas: document.getElementById('canvasExample'),
+  speed: 400,
+  scramble: 0.1,
+  color: '#ff66cc',
+});
 ```
 Meanwhile please checkout the example instead
 
